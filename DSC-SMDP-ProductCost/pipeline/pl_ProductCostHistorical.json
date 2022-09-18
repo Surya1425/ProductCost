@@ -1,0 +1,157 @@
+{
+	"name": "pl_ProductCostHistorical",
+	"properties": {
+		"description": "This pipeline is to perform an intial load of ProductCost data from an .csv extract of the data from the MARS database.  This pipeline should only be run manually",
+		"activities": [
+			{
+				"name": "Perform Historical Load",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "Delete if ProductCost exists in ADLS",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_ProductCostHistoricalLoad",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					}
+				}
+			},
+			{
+				"name": "Check if ProductCost parquet in ADLS",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_FindProductCostParquetInADLS",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"exists"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true
+					}
+				}
+			},
+			{
+				"name": "Check if ProductCost txt in ADLS",
+				"type": "GetMetadata",
+				"dependsOn": [
+					{
+						"activity": "Check if ProductCost parquet in ADLS",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_FindProductCostTxtInADLS",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"exists"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "Delete if ProductCost exists in ADLS",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Check if ProductCost txt in ADLS",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [
+					{
+						"name": "ProductCostParquetExistsInADLS",
+						"value": "@activity('Check if ProductCost parquet in ADLS').output.exists"
+					},
+					{
+						"name": "ProductCostTxtExistsInADLS",
+						"value": "@activity('Check if ProductCost txt in ADLS').output.exist"
+					}
+				],
+				"typeProperties": {
+					"expression": {
+						"value": "@or(activity('Check if ProductCost parquet in ADLS').output.exists,activity('Check if ProductCost txt in ADLS').output.exists)",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Delete ProductCost in ADLS",
+							"type": "Delete",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "ds_ProductCostProducedADLS",
+									"type": "DatasetReference"
+								},
+								"enableLogging": false,
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": false,
+									"wildcardFileName": "ProductCost.*"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"annotations": []
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

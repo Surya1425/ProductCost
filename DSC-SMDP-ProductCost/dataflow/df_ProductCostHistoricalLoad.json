@@ -1,0 +1,47 @@
+{
+	"name": "df_ProductCostHistoricalLoad",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_ADLSRawDirectoryHistorical",
+						"type": "DatasetReference"
+					},
+					"name": "SourceFromMARS",
+					"description": "Requirement: Manually export data from MARS view vwProductCostGlobal to a pipe delimited csv called vwProductCostGlobal.csv, make sure the null values export as empty fields (not with the word 'null'), and drop to sapbi/ProductCost/Historical/vwProductCostGlobal.csv in blob"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_ProductCostParquetInADLS",
+						"type": "DatasetReference"
+					},
+					"name": "SinkParquet"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_ProductCostTxtInADLS",
+						"type": "DatasetReference"
+					},
+					"name": "SinkTXT"
+				}
+			],
+			"transformations": [
+				{
+					"name": "AddColumns"
+				},
+				{
+					"name": "Select"
+				},
+				{
+					"name": "CastColumns",
+					"description": "Creates an explicit mapping for each drifted column"
+				}
+			],
+			"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\twildcardPaths:['6896_SAPBW/Downstream/ProductCost/vwProductCostGlobal.csv']) ~> SourceFromMARS\nCastColumns derive(FileName = 'MARS.dbo.vwProductCostGlobal',\n\t\tLoadDataTimestamp = currentUTC(),\n\t\tSourceSystem = SubSourceCode) ~> AddColumns\nAddColumns select(mapColumn(\n\t\tProductCostEstimateNumber,\n\t\tCostingDate,\n\t\tMaterialNumber,\n\t\tPlant,\n\t\tLotSize,\n\t\tUnitOfMeasure,\n\t\tCurrencyCode,\n\t\tCostingDateFrom,\n\t\tCostingDateTo,\n\t\tCostingStatus,\n\t\tPostingPeriod,\n\t\tCostedUserId,\n\t\tCreatedDate,\n\t\tMarkedUserid,\n\t\tMarkedDate,\n\t\tReleasedUserid,\n\t\tReleasedDate,\n\t\tProcurementTypeFlag,\n\t\tLowerLevelFlag,\n\t\tManualAdditiveCostFlag,\n\t\tManualAdditiveCostFlag2,\n\t\tLinkCurrencyTypeFlag,\n\t\tMaterialCost,\n\t\tBaseOil,\n\t\tBaseOilFreight,\n\t\tAdditives,\n\t\tAdditiveFreight,\n\t\tOtherMaterial,\n\t\tOtherMaterialFreight,\n\t\tContainerCost,\n\t\tTerminalCost,\n\t\tPackageFillingCost,\n\t\tBlendManufacturingCost,\n\t\tWarehouseCost,\n\t\tInterplantFreight,\n\t\tOtherOverhead,\n\t\tOperatingDifferential,\n\t\tFileName,\n\t\tLoadDataTimestamp,\n\t\tSourceSystem\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Select\nSourceFromMARS derive(ProductCostEstimateNumber = toLong(byName('ProductCostEstimateNumber')),\n\t\tCostingDate = concat(substring(left(byName('CostingDate'),10),6,2),substring(left(byName('CostingDate'),10),9,2),substring(left(byName('CostingDate'),10),1,4)),\n\t\tMaterialNumber = toString(byName('MaterialNumber')),\n\t\tPlant = toString(byName('Plant')),\n\t\tLotSize = toDecimal(byName('LotSize'),13,2),\n\t\tUnitOfMeasure = toString(byName('UnitOfMeasure')),\n\t\tCurrencyCode = toString(byName('CurrencyCode')),\n\t\tCostingDateFrom = concat(substring(left(byName('CostingDateFrom'),10),6,2),substring(left(byName('CostingDateFrom'),10),9,2),substring(left(byName('CostingDateFrom'),10),1,4)),\n\t\tCostingDateTo = concat(substring(left(byName('CostingDateTo'),10),6,2),substring(left(byName('CostingDateTo'),10),9,2),substring(left(byName('CostingDateTo'),10),1,4)),\n\t\tCostingStatus = toString(byName('CostingStatus')),\n\t\tPostingPeriod = toString(byName('PostingPeriod')),\n\t\tCostedUserId = toString(byName('CostedUserId')),\n\t\tCreatedDate = concat(substring(left(byName('CreatedDate'),10),6,2),substring(left(byName('CreatedDate'),10),9,2),substring(left(byName('CreatedDate'),10),1,4)),\n\t\tReleasedUserid = toString(byName('ReleasedUserid')),\n\t\tReleasedDate = concat(substring(left(byName('ReleasedDate'),10),6,2),substring(left(byName('ReleasedDate'),10),9,2),substring(left(byName('ReleasedDate'),10),1,4)),\n\t\tMaterialCost = toDecimal(byName('MaterialCost'),13,2),\n\t\tBaseOil = toDecimal(byName('BaseOil'),13,2),\n\t\tBaseOilFreight = toDecimal(byName('BaseOilFreight'),13,2),\n\t\tAdditives = toDecimal(byName('Additives'),13,2),\n\t\tAdditiveFreight = toDecimal(byName('AdditiveFreight'),13,2),\n\t\tOtherMaterial = toDecimal(byName('OtherMaterial'),13,2),\n\t\tOtherMaterialFreight = toDecimal(byName('OtherMaterialFreight'),13,2),\n\t\tContainerCost = toDecimal(byName('ContainerCost'),13,2),\n\t\tTerminalCost = toDecimal(byName('TerminalCost'),13,2),\n\t\tPackageFillingCost = toDecimal(byName('PackageFillingCost'),13,2),\n\t\tBlendManufacturingCost = toDecimal(byName('BlendManufacturingCost'),13,2),\n\t\tWarehouseCost = toDecimal(byName('WarehouseCost'),13,2),\n\t\tInterplantFreight = toDecimal(byName('InterplantFreight'),13,2),\n\t\tOtherOverhead = toDecimal(byName('OtherOverhead'),13,2),\n\t\tOperatingDifferential = toDecimal(byName('OperatingDifferential'),13,2),\n\t\tMarkedUserid = toString(byName('MarkedUserid')),\n\t\tMarkedDate = concat(substring(left(byName('MarkedDate'),10),6,2),substring(left(byName('MarkedDate'),10),9,2),substring(left(byName('MarkedDate'),10),1,4)),\n\t\tProcurementTypeFlag = toString(byName('ProcurementTypeFlag')),\n\t\tLowerLevelFlag = toString(byName('LowerLevelFlag')),\n\t\tManualAdditiveCostFlag = toString(byName('ManualAdditiveCostFlag')),\n\t\tManualAdditiveCostFlag2 = toString(byName('ManualAdditiveCostFlag2')),\n\t\tLinkCurrencyTypeFlag = toString(byName('LinkCurrencyTypeFlag')),\n\t\tIdrDeleteFlag = toString(byName('IdrDeleteFlag')),\n\t\tActiveIndicator = toString(byName('ActiveIndicator')),\n\t\tSourceCode = toString(byName('SourceCode')),\n\t\tSubSourceCode = toString(byName('SubSourceCode')),\n\t\tCheckSumNumber = toString(byName('CheckSumNumber')),\n\t\tFileId = toString(byName('FileId')),\n\t\tUpdateUserId = toString(byName('UpdateUserId')),\n\t\tUpdateTimestamp = toString(byName('UpdateTimestamp'))) ~> CastColumns\nSelect sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:['ProductCost.parquet'],\n\tpartitionBy('hash', 1)) ~> SinkParquet\nSelect sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['ProductCost.txt'],\n\tpartitionBy('hash', 1)) ~> SinkTXT"
+		}
+	}
+}

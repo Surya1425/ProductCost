@@ -1,0 +1,11 @@
+{
+	"name": "ls_SMDPAzureKeyVault",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"typeProperties": {
+			"baseUrl": "https://smdpdf-t216-dev.vault.azure.net/"
+		},
+		"type": "AzureKeyVault",
+		"annotations": []
+	}
+}

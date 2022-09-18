@@ -1,0 +1,38 @@
+{
+    "name": "tr_ProductCostUpdateMontly",
+    "properties": {
+        "annotations": [],
+        "runtimeState": "Stopped",
+        "pipelines": [
+            {
+                "pipelineReference": {
+                    "referenceName": "pl_ProductCostInboundToADLS",
+                    "type": "PipelineReference"
+                }
+            }
+        ],
+        "type": "ScheduleTrigger",
+        "typeProperties": {
+            "recurrence": {
+                "frequency": "Month",
+                "interval": 1,
+                "startTime": "2020-03-26T17:27:00.000Z",
+                "timeZone": "UTC",
+                "schedule": {
+                    "minutes": [
+                        30
+                    ],
+                    "hours": [
+                        9,
+                        21
+                    ],
+                    "monthDays": [
+                        1,
+                        2,
+                        3
+                    ]
+                }
+            }
+        }
+    }
+}

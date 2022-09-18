@@ -1,0 +1,48 @@
+{
+  "application": {
+    "name": "DSC SMDP Data Foundation",
+    "project": "DSC-SMDP-DataFoundation",
+    "repository": "https://dev.azure.com/chevron/_git/DSC-SMDP-DataFoundation",
+    "serviceId": "1500002101",
+    "shortName": "smdpdf"
+  },
+  "baseUrl": "smdpdf",
+  "companyCode": "3197",
+  "contentVersion": "1.0.0.0",
+  "costElement": "DCGITIC006",
+  "environments": {
+    "dev": {
+      "azure": {
+        "appId": "fdc4e141-0611-4ee9-bb4a-0900f27e009f",
+        "defaultRegion": "southcentralus",
+        "resourceGroup": "smdpdf-t216-20191121",
+        "subscription": "819dfddc-cf08-4dbf-b124-a2d743970e8b",
+        "vaultName": "smdpdf-t216-dev"
+      },
+      "dnsDomain": "azure.chevron.com"
+    },
+    "prod": {
+      "azure": {
+        "appId": "e753c211-09d8-43ec-afff-ee6cc59be731",
+        "defaultRegion": "southcentralus",
+        "resourceGroup": "smdpdf-p216-20191121",
+        "subscription": "74f74c71-170c-4e30-8ad7-cb6188a761e2",
+        "vaultName": "smdpdf-p216-cvx"
+      },
+      "dnsDomain": "azure.chevron.com"
+    },
+    "test": {
+      "azure": {
+        "appId": "a0c96ce6-413d-4937-a2c2-3d078e0a52b9",
+        "defaultRegion": "southcentralus",
+        "resourceGroup": "smdpdf-t216-20191121",
+        "subscription": "819dfddc-cf08-4dbf-b124-a2d743970e8b",
+        "vaultName": "smdpdf-t216-cvx"
+      },
+      "dnsDomain": "azure.chevron.com"
+    }
+  },
+  "ownerEmail": [
+    "vandana.kapoor@chevron.com"
+  ]
+}

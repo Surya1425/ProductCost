@@ -1,0 +1,107 @@
+{
+	"name": "pl_ProductCostInboundToADLS",
+	"properties": {
+		"description": "process the weekly and monthly inbound Product Costs files from PC2 and PC8 to ADLS",
+		"activities": [
+			{
+				"name": "triggerName",
+				"description": "Getting the name of the trigger",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "triggerName",
+					"value": {
+						"value": "@pipeline().TriggerName",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "dayOfTheMonth",
+				"description": "Getting the Timestamp of the current trigger",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "dayOfTheMonth",
+					"value": {
+						"value": "dayOfMonth(@pipeline().TriggerTime)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Checking the day is Saturday and falls on 123",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "triggerName",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "dayOfTheMonth",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@and(equals(variables('triggerName'),'tr_ProductCostUpdateSaturdays'),or(or(equals(variables('dayOfTheMonth'),'1'),equals(variables('dayOfTheMonth'),'2')),equals(variables('dayOfTheMonth'),'3')))",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Run Inbound Data Load",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "df_ProductCostInboundLoad",
+									"type": "DataFlowReference"
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								}
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Wait and Exit",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"dayOfTheMonth": {
+				"type": "String"
+			},
+			"triggerName": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

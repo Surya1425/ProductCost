@@ -1,0 +1,35 @@
+{
+    "name": "tr_ProductCostUpdateSundays",
+    "properties": {
+        "annotations": [],
+        "runtimeState": "Started",
+        "pipelines": [
+            {
+                "pipelineReference": {
+                    "referenceName": "pl_ProductCostInboundToADLS",
+                    "type": "PipelineReference"
+                }
+            }
+        ],
+        "type": "ScheduleTrigger",
+        "typeProperties": {
+            "recurrence": {
+                "frequency": "Week",
+                "interval": 1,
+                "startTime": "2020-04-23T14:14:00.000Z",
+                "timeZone": "UTC",
+                "schedule": {
+                    "minutes": [
+                        30
+                    ],
+                    "hours": [
+                        3
+                    ],
+                    "weekDays": [
+                        "Sunday"
+                    ]
+                }
+            }
+        }
+    }
+}

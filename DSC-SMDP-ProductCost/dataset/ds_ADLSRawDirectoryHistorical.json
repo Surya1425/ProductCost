@@ -1,0 +1,23 @@
+{
+	"name": "ds_ADLSRawDirectoryHistorical",
+	"properties": {
+		"description": "set to pipe (|) delimiter",
+		"linkedServiceName": {
+			"referenceName": "ls_AzureDataLakeGen2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "raw"
+			},
+			"columnDelimiter": "|",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}

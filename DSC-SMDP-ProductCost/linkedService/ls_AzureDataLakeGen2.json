@@ -1,0 +1,42 @@
+{
+	"name": "ls_AzureDataLakeGen2",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"type": "LinkedServiceReference",
+					"referenceName": "ls_SMDPAzureKeyVault"
+				},
+				"secretName": "smdpdf-datalakestore-gen2-uri"
+			},
+			"servicePrincipalKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"type": "LinkedServiceReference",
+					"referenceName": "ls_SMDPAzureKeyVault"
+				},
+				"secretName": "app-secret"
+			},
+			"servicePrincipalId": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"type": "LinkedServiceReference",
+					"referenceName": "ls_SMDPAzureKeyVault"
+				},
+				"secretName": "cvx-az-client-id"
+			},
+			"tenant": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"type": "LinkedServiceReference",
+					"referenceName": "ls_SMDPAzureKeyVault"
+				},
+				"secretName": "smdpdf-tenant"
+			}
+		},
+		"annotations": []
+	}
+}

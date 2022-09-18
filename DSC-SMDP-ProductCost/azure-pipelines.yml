@@ -1,0 +1,18 @@
+resources:
+  repositories:
+  - repository: self
+  - repository: pf
+    type: git
+    name: CVX-DevOps/PipelineFramework
+    ref: refs/tags/3.6.6
+    
+trigger: none
+
+stages:
+- template: pipeline.yml@pf
+  parameters:
+    project:
+    - name: DSCSMDPProductCost
+      type: ansible
+      playbook: main.yml
+      verbosity: -vvvv

@@ -1,0 +1,52 @@
+---
+- hosts: localhost
+  connection: local
+
+  vars:
+    azure_adf_location: "southcentralus"
+    azure_adf_name: "{{ cvx_mnemonic | lower }}-productcost-{{ cvx_environment_name }}-cvx"
+    azure_storage_blob_account: "{{ cvx_mnemonic | lower }}sa{{ cvx_environment_name }}cvx"   # corresponds to same var in Shared-Components repo playbook
+    resource_group:  "/subscriptions/{{ cvx_az.subscription }}/resourceGroups/{{ cvx_az.resourceGroup }}/providers"
+
+  roles:
+    - role: ansible-role-azure-keyvault-secrets
+      azure_keyvault_secrets:
+      - name: smdp-action-group-email
+      - name: smdp-action-group-name
+      - name: smdp-action-group-short-name
+
+    - role: ansible-role-azure-adf-v2
+    - role: ansible-role-azure-adf-deploy
+      azure_adf_deploy_secure_logging: "{{ true if cvx_environment_name == 'prod' else false }}" 
+      azure_adf_deploy_start_triggers: "{{ true if cvx_environment_name == 'prod' else false }}" # turn on ADF triggers only in production
+      azure_adf_deploy_dataflows: true
+
+    - role: ansible-role-azure-action-group
+      azure_action_groups:
+      - azure_action_group_name: "{{ kvsecrets['smdp-action-group-name'] }}"
+        azure_action_group_short_name: "{{ kvsecrets['smdp-action-group-short-name'] }}"
+        azure_action_group_email:
+        - name: "{{ kvsecrets['smdp-action-group-name'] }}"
+          emailAddress: "{{ kvsecrets['smdp-action-group-email'] }}"
+
+    - role: ansible-role-azure-metric-alert
+      azure_metric_alerts:
+      - azure_metric_alert_name: "Failed Pipeline-{{ azure_adf_name }}"
+        azure_metric_alert_action_groups:
+        - actionGroupId: "{{ resource_group }}/microsoft.insights/actiongroups/{{ kvsecrets['smdp-action-group-name'] }}"
+        azure_metric_name: "PipelineFailedRuns"
+        azure_metric_resource_type: "Microsoft.DataFactory/factories"
+        azure_metric_alert_resource_id: "{{ resource_group }}/Microsoft.DataFactory/factories/{{ azure_adf_name }}"
+        azure_metric_alert_severity: "3"
+        azure_metric_alert_operator: "GreaterThan"
+        azure_metric_alert_threshold: "0"
+        azure_metric_alert_frequency: "PT1M"
+        azure_metric_alert_timeaggregation: "Total"
+        azure_metric_alert_windowsize: "PT1M"
+        azure_metric_dimensions:
+        - name: FailureType
+          operator: Include
+          values: [UserError,SystemError,BadGateway]
+        - name: Name
+          operator: Include
+          values: [pl_ProductCostInboundToADLS]

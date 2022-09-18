@@ -1,0 +1,67 @@
+{
+	"name": "df_ProductCostInboundLoad",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_ADLSRawDirectory",
+						"type": "DatasetReference"
+					},
+					"name": "SourceDatFiles"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_FindProductCostParquetInADLS",
+						"type": "DatasetReference"
+					},
+					"name": "FromADLSSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_ProductCostParquetInADLS",
+						"type": "DatasetReference"
+					},
+					"name": "SinkParquet"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_ProductCostTxtInADLS",
+						"type": "DatasetReference"
+					},
+					"name": "SinkTXT"
+				}
+			],
+			"transformations": [
+				{
+					"name": "RenameColumns"
+				},
+				{
+					"name": "Union"
+				},
+				{
+					"name": "Select"
+				},
+				{
+					"name": "AddSourceSystemAndLoadTime"
+				},
+				{
+					"name": "AddCompositeID"
+				},
+				{
+					"name": "RemoveEmptyRows"
+				},
+				{
+					"name": "FindDuplicates"
+				},
+				{
+					"name": "RemoveDuplicates"
+				}
+			],
+			"script": "source(output(\n\t\t{_col0_} as long,\n\t\t{_col1_} as string,\n\t\t{_col2_} as string,\n\t\t{_col3_} as string,\n\t\t{_col4_} as decimal(13,2),\n\t\t{_col5_} as string,\n\t\t{_col6_} as string,\n\t\t{_col7_} as string,\n\t\t{_col8_} as string,\n\t\t{_col9_} as string,\n\t\t{_col10_} as string,\n\t\t{_col11_} as string,\n\t\t{_col12_} as string,\n\t\t{_col13_} as string,\n\t\t{_col14_} as string,\n\t\t{_col15_} as string,\n\t\t{_col16_} as string,\n\t\t{_col17_} as string,\n\t\t{_col18_} as string,\n\t\t{_col19_} as string,\n\t\t{_col20_} as string,\n\t\t{_col21_} as string,\n\t\t{_col22_} as decimal(13,2),\n\t\t{_col23_} as decimal(13,2),\n\t\t{_col24_} as decimal(13,2),\n\t\t{_col25_} as decimal(13,2),\n\t\t{_col26_} as decimal(13,2),\n\t\t{_col27_} as decimal(13,2),\n\t\t{_col28_} as decimal(13,2),\n\t\t{_col29_} as decimal(13,2),\n\t\t{_col30_} as decimal(13,2),\n\t\t{_col31_} as decimal(13,2),\n\t\t{_col32_} as decimal(13,2),\n\t\t{_col33_} as decimal(13,2),\n\t\t{_col34_} as decimal(13,2),\n\t\t{_col35_} as decimal(13,2),\n\t\t{_col36_} as decimal(13,2)\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tmoveFiles: ['6896_SAPBW/Downstream/ProductCost/','6896_SAPBW/Downstream/ProductCost/Archive'],\n\trowUrlColumn: 'FileName',\n\twildcardPaths:['6896_SAPBW/Downstream/ProductCost/pcstcm*.dat']) ~> SourceDatFiles\nsource(output(\n\t\tProductCostEstimateNumber as long,\n\t\tCostingDate as string,\n\t\tMaterialNumber as string,\n\t\tPlant as string,\n\t\tLotSize as decimal(13,2),\n\t\tUnitOfMeasure as string,\n\t\tCurrencyCode as string,\n\t\tCostingDateFrom as string,\n\t\tCostingDateTo as string,\n\t\tCostingStatus as string,\n\t\tPostingPeriod as string,\n\t\tCostedUserId as string,\n\t\tCreatedDate as string,\n\t\tMarkedUserid as string,\n\t\tMarkedDate as string,\n\t\tReleasedUserid as string,\n\t\tReleasedDate as string,\n\t\tProcurementTypeFlag as string,\n\t\tLowerLevelFlag as string,\n\t\tManualAdditiveCostFlag as string,\n\t\tManualAdditiveCostFlag2 as string,\n\t\tLinkCurrencyTypeFlag as string,\n\t\tMaterialCost as decimal(13,2),\n\t\tBaseOil as decimal(13,2),\n\t\tBaseOilFreight as decimal(13,2),\n\t\tAdditives as decimal(13,2),\n\t\tAdditiveFreight as decimal(13,2),\n\t\tOtherMaterial as decimal(13,2),\n\t\tOtherMaterialFreight as decimal(13,2),\n\t\tContainerCost as decimal(13,2),\n\t\tTerminalCost as decimal(13,2),\n\t\tPackageFillingCost as decimal(13,2),\n\t\tBlendManufacturingCost as decimal(13,2),\n\t\tWarehouseCost as decimal(13,2),\n\t\tInterplantFreight as decimal(13,2),\n\t\tOtherOverhead as decimal(13,2),\n\t\tOperatingDifferential as decimal(13,2),\n\t\tFileName as string,\n\t\tLoadDataTimestamp as timestamp,\n\t\tSourceSystem as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet') ~> FromADLSSource\nRemoveEmptyRows select(mapColumn(\n\t\tProductCostEstimateNumber = {_col0_},\n\t\tCostingDate = {_col1_},\n\t\tMaterialNumber = {_col2_},\n\t\tPlant = {_col3_},\n\t\tLotSize = {_col4_},\n\t\tUnitOfMeasure = {_col5_},\n\t\tCurrencyCode = {_col6_},\n\t\tCostingDateFrom = {_col7_},\n\t\tCostingDateTo = {_col8_},\n\t\tCostingStatus = {_col9_},\n\t\tPostingPeriod = {_col10_},\n\t\tCostedUserId = {_col11_},\n\t\tCreatedDate = {_col12_},\n\t\tMarkedUserid = {_col13_},\n\t\tMarkedDate = {_col14_},\n\t\tReleasedUserid = {_col15_},\n\t\tReleasedDate = {_col16_},\n\t\tProcurementTypeFlag = {_col17_},\n\t\tLowerLevelFlag = {_col18_},\n\t\tManualAdditiveCostFlag = {_col19_},\n\t\tManualAdditiveCostFlag2 = {_col20_},\n\t\tLinkCurrencyTypeFlag = {_col21_},\n\t\tMaterialCost = {_col22_},\n\t\tBaseOil = {_col23_},\n\t\tBaseOilFreight = {_col24_},\n\t\tAdditives = {_col25_},\n\t\tAdditiveFreight = {_col26_},\n\t\tOtherMaterial = {_col27_},\n\t\tOtherMaterialFreight = {_col28_},\n\t\tContainerCost = {_col29_},\n\t\tTerminalCost = {_col30_},\n\t\tPackageFillingCost = {_col31_},\n\t\tBlendManufacturingCost = {_col32_},\n\t\tWarehouseCost = {_col33_},\n\t\tInterplantFreight = {_col34_},\n\t\tOtherOverhead = {_col35_},\n\t\tOperatingDifferential = {_col36_},\n\t\tFileName\n\t),\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> RenameColumns\nAddSourceSystemAndLoadTime, FromADLSSource union(byName: true,\n\tpartitionBy('hash', 1))~> Union\nRemoveDuplicates select(mapColumn(\n\t\tProductCostEstimateNumber,\n\t\tCostingDate,\n\t\tMaterialNumber,\n\t\tPlant,\n\t\tLotSize,\n\t\tUnitOfMeasure,\n\t\tCurrencyCode,\n\t\tCostingDateFrom,\n\t\tCostingDateTo,\n\t\tCostingStatus,\n\t\tPostingPeriod,\n\t\tCostedUserId,\n\t\tCreatedDate,\n\t\tMarkedUserid,\n\t\tMarkedDate,\n\t\tReleasedUserid,\n\t\tReleasedDate,\n\t\tProcurementTypeFlag,\n\t\tLowerLevelFlag,\n\t\tManualAdditiveCostFlag,\n\t\tManualAdditiveCostFlag2,\n\t\tLinkCurrencyTypeFlag,\n\t\tMaterialCost,\n\t\tBaseOil,\n\t\tBaseOilFreight,\n\t\tAdditives,\n\t\tAdditiveFreight,\n\t\tOtherMaterial,\n\t\tOtherMaterialFreight,\n\t\tContainerCost,\n\t\tTerminalCost,\n\t\tPackageFillingCost,\n\t\tBlendManufacturingCost,\n\t\tWarehouseCost,\n\t\tInterplantFreight,\n\t\tOtherOverhead,\n\t\tOperatingDifferential,\n\t\tFileName,\n\t\tLoadDataTimestamp,\n\t\tSourceSystem\n\t),\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> Select\nRenameColumns derive(SourceSystem = toString(iif(like(byName('FileName'),'%pcstcmp%'),'PC2', 'PC8' )),\n\t\tLoadDataTimestamp = currentUTC(),\n\tpartitionBy('hash', 1)) ~> AddSourceSystemAndLoadTime\nUnion derive(CompositeID = toString(concat(toString(ProductCostEstimateNumber),'-',CostingDate,'-',SourceSystem))) ~> AddCompositeID\nSourceDatFiles filter({_col0_} != 0) ~> RemoveEmptyRows\nAddCompositeID window(over(CompositeID),\n\tdesc(LoadDataTimestamp, true),\n\tRowNumber = rowNumber()) ~> FindDuplicates\nFindDuplicates filter(equals(RowNumber, 1)) ~> RemoveDuplicates\nSelect sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:['ProductCost.parquet'],\n\tpartitionBy('hash', 1)) ~> SinkParquet\nSelect sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['ProductCost.txt'],\n\tpartitionBy('hash', 1)) ~> SinkTXT"
+		}
+	}
+}

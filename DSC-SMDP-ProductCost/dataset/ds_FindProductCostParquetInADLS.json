@@ -1,0 +1,22 @@
+{
+	"name": "ds_FindProductCostParquetInADLS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_AzureDataLakeGen2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "ProductCost.parquet",
+				"folderPath": "SalesManagement/ProductCost/Lubricants",
+				"fileSystem": "produced"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
