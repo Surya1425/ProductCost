@@ -1,0 +1,19 @@
+{
+	"name": "JSONOP",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "JsonLS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "scontainer"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

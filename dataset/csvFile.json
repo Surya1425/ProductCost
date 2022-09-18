@@ -1,0 +1,73 @@
+{
+	"name": "csvFile",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "csvLS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "ds_salaries.csv",
+				"fileSystem": "scontainer"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Id",
+				"type": "String"
+			},
+			{
+				"name": "work_year",
+				"type": "String"
+			},
+			{
+				"name": "experience_level",
+				"type": "String"
+			},
+			{
+				"name": "employment_type",
+				"type": "String"
+			},
+			{
+				"name": "job_title",
+				"type": "String"
+			},
+			{
+				"name": "salary",
+				"type": "String"
+			},
+			{
+				"name": "salary_currency",
+				"type": "String"
+			},
+			{
+				"name": "salary_in_usd",
+				"type": "String"
+			},
+			{
+				"name": "employee_residence",
+				"type": "String"
+			},
+			{
+				"name": "remote_ratio",
+				"type": "String"
+			},
+			{
+				"name": "company_location",
+				"type": "String"
+			},
+			{
+				"name": "company_size",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

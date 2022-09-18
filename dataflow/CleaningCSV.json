@@ -1,0 +1,74 @@
+{
+	"name": "CleaningCSV",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "csvFile",
+						"type": "DatasetReference"
+					},
+					"name": "inputCSV"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "JSONOP",
+						"type": "DatasetReference"
+					},
+					"name": "DataScientist"
+				}
+			],
+			"transformations": [
+				{
+					"name": "RemovedNulls"
+				},
+				{
+					"name": "ReplacingNullsWith"
+				},
+				{
+					"name": "filterOnlyDSandDA"
+				},
+				{
+					"name": "SumOfSalaries"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Id as short,",
+				"          work_year as short,",
+				"          experience_level as string,",
+				"          employment_type as string,",
+				"          job_title as string,",
+				"          salary as integer,",
+				"          salary_currency as string,",
+				"          salary_in_usd as integer,",
+				"          employee_residence as string,",
+				"          remote_ratio as short,",
+				"          company_location as string,",
+				"          company_size as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> inputCSV",
+				"ReplacingNullsWith split(isNull(Id),",
+				"     disjoint: false) ~> RemovedNulls@(NullRows, GoodRows)",
+				"inputCSV derive(work_year = iif(work_year==2020,2022,2023)) ~> ReplacingNullsWith",
+				"RemovedNulls@GoodRows filter((job_title==\"Data Scientist\") || (job_title==\"Data Analyst\")) ~> filterOnlyDSandDA",
+				"filterOnlyDSandDA aggregate(groupBy(job_title),",
+				"     salary = sum(salary)) ~> SumOfSalaries",
+				"SumOfSalaries sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['OutputJson'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> DataScientist"
+			]
+		}
+	}
+}
